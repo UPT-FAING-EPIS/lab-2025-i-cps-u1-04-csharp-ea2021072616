@@ -4,26 +4,34 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Instalar DocFX
-        run: |
-          wget https://github.com/dotnet/docfx/releases/latest/download/docfx.zip
-          unzip docfx.zip -d docfx
-          sudo mv docfx/docfx /usr/local/bin/docfx
+      - name: Instalar .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
 
-      - name: Build ATM Docs
+      - name: Instalar DocFX con .NET tool
+        run: |
+          dotnet tool install -g docfx
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Generar documentación ATM
         working-directory: ATM
         run: |
           docfx metadata docfx.json
           docfx build docfx.json
 
-      - name: Build Payment Docs
+      - name: Generar documentación Payment
         working-directory: Payment
         run: |
           docfx metadata docfx.json
@@ -31,11 +39,11 @@ jobs:
 
       - name: Preparar carpeta para GitHub Pages
         run: |
-          mkdir deploy
+          mkdir -p deploy
           cp -r ATM/_site deploy/atm
           cp -r Payment/_site deploy/payment
 
-      - name: Deploy a GitHub Pages
+      - name: Publicar en GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
