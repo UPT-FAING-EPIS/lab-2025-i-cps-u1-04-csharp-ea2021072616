@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Payment.Domain</name>
+    </assembly>
+    <members>
+        <member name="T:Payment.Domain.CashPaymentStrategy">
+            <summary>
+            Represents a payment strategy for handling cash payments.
+            </summary>
+        </member>
+        <member name="M:Payment.Domain.CashPaymentStrategy.Pay(System.Double)">
+            <summary>
+            Processes a payment using cash.
+            </summary>
+            <param name="amount">The amount to be paid in cash.</param>
+            <returns>
+            Returns <c>true</c> to indicate that the payment was successfully processed.
+            </returns>
+        </member>
+        <member name="T:Payment.Domain.CreditCardPaymentStrategy">
+            <summary>
+            Represents a payment strategy for handling credit card payments.
+            </summary>
+        </member>
+        <member name="M:Payment.Domain.CreditCardPaymentStrategy.Pay(System.Double)">
+            <summary>
+            Processes a payment using a credit card.
+            </summary>
+            <param name="amount">The amount to be paid using the credit card.</param>
+            <returns>
+            Returns <c>true</c> to indicate that the payment was successfully processed.
+            </returns>
+        </member>
+        <member name="T:Payment.Domain.DebitCardPaymentStrategy">
+            <summary>
+            Represents a payment strategy for handling debit card payments.
+            </summary>
+        </member>
+        <member name="M:Payment.Domain.DebitCardPaymentStrategy.Pay(System.Double)">
+            <summary>
+            Processes a payment using a debit card.
+            </summary>
+            <param name="amount">The amount to be paid using the debit card.</param>
+            <returns>
+            Returns <c>true</c> to indicate that the payment was successfully processed.
+            </returns>
+        </member>
+        <member name="T:Payment.Domain.IPaymentStrategy">
+            <summary>
+            Defines a strategy for processing payments.
+            </summary>
+        </member>
+        <member name="M:Payment.Domain.IPaymentStrategy.Pay(System.Double)">
+            <summary>
+            Processes a payment with the specified amount.
+            </summary>
+            <param name="amount">The amount to be paid.</param>
+            <returns>
+            Returns <c>true</c> if the payment was successfully processed; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:Payment.Domain.PaymentContext">
+            <summary>
+            Represents the context for processing payments using a specified payment strategy.
+            </summary>
+        </member>
+        <member name="F:Payment.Domain.PaymentContext.PaymentStrategy">
+            <summary>
+            The payment strategy to be used for processing payments.
+            </summary>
+        </member>
+        <member name="M:Payment.Domain.PaymentContext.SetPaymentStrategy(Payment.Domain.IPaymentStrategy)">
+            <summary>
+            Sets the payment strategy to be used by the context.
+            </summary>
+            <param name="strategy">The payment strategy to use.</param>
+        </member>
+        <member name="M:Payment.Domain.PaymentContext.Pay(System.Double)">
+            <summary>
+            Processes a payment using the currently set payment strategy.
+            </summary>
+            <param name="amount">The amount to be paid.</param>
+            <returns>
+            Returns <c>true</c> if the payment was successfully processed; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:Payment.Domain.PaymentService">
+            <summary>
+            Provides services for processing payments using different payment strategies.
+            </summary>
+        </member>
+        <member name="M:Payment.Domain.PaymentService.ProcessPayment(System.Int32,System.Double)">
+            <summary>
+            Processes a payment based on the selected payment type and amount.
+            </summary>
+            <param name="SelectedPaymentType">The type of payment selected (e.g., CreditCard, DebitCard, Cash).</param>
+            <param name="Amount">The amount to be paid.</param>
+            <returns>
+            Returns <c>true</c> if the payment was successfully processed; otherwise, <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            Thrown when an invalid payment option is selected.
+            </exception>
+        </member>
+        <member name="T:Payment.Domain.PaymentType">
+            <summary>
+            Represents the different types of payment methods available.
+            </summary>
+        </member>
+        <member name="F:Payment.Domain.PaymentType.CreditCard">
+            <summary>
+            Payment using a credit card.
+            </summary>
+        </member>
+        <member name="F:Payment.Domain.PaymentType.DebitCard">
+            <summary>
+            Payment using a debit card.
+            </summary>
+        </member>
+        <member name="F:Payment.Domain.PaymentType.Cash">
+            <summary>
+            Payment using cash.
+            </summary>
+        </member>
+    </members>
+</doc>

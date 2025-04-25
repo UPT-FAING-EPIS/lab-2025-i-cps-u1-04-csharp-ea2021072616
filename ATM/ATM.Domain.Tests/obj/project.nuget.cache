@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "zJIvW/Rlz3E=",
+  "dgSpecHash": "KtVpvR6i0ho=",
   "success": true,
-  "projectFilePath": "C:\\Users\\erick\\Downloads\\lab-2025-i-cps-u1-04-csharp-ea2021072616\\ATM\\ATM.Domain.Tests\\ATM.Domain.Tests.csproj",
+  "projectFilePath": "C:\\Users\\erick\\Music\\lab-2025-i-cps-u1-04-csharp-ea2021072616\\ATM\\ATM.Domain.Tests\\ATM.Domain.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\erick\\.nuget\\packages\\coverlet.collector\\6.0.0\\coverlet.collector.6.0.0.nupkg.sha512",
     "C:\\Users\\erick\\.nuget\\packages\\microsoft.codecoverage\\17.8.0\\microsoft.codecoverage.17.8.0.nupkg.sha512",

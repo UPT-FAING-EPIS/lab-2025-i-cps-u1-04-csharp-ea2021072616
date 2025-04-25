@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\erick\\Downloads\\lab-2025-i-cps-u1-04-csharp-ea2021072616\\ATM\\ATM.Domain\\ATM.Domain.csproj",
+      "projectUniqueName": "C:\\Users\\erick\\Music\\lab-2025-i-cps-u1-04-csharp-ea2021072616\\ATM\\ATM.Domain\\ATM.Domain.csproj",
       "projectName": "ATM.Domain",
-      "projectPath": "C:\\Users\\erick\\Downloads\\lab-2025-i-cps-u1-04-csharp-ea2021072616\\ATM\\ATM.Domain\\ATM.Domain.csproj",
+      "projectPath": "C:\\Users\\erick\\Music\\lab-2025-i-cps-u1-04-csharp-ea2021072616\\ATM\\ATM.Domain\\ATM.Domain.csproj",
       "packagesPath": "C:\\Users\\erick\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\erick\\Downloads\\lab-2025-i-cps-u1-04-csharp-ea2021072616\\ATM\\ATM.Domain\\obj\\",
+      "outputPath": "C:\\Users\\erick\\Music\\lab-2025-i-cps-u1-04-csharp-ea2021072616\\ATM\\ATM.Domain\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\erick\\AppData\\Roaming\\NuGet\\NuGet.Config"

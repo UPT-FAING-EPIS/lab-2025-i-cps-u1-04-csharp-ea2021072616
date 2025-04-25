@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ATM.Domain</name>
+    </assembly>
+    <members>
+        <member name="T:ATM.Domain.Account">
+            <summary>
+            Represents a bank account with basic operations such as deposit and withdrawal.
+            </summary>
+        </member>
+        <member name="F:ATM.Domain.Account.MAX_INPUT_AMOUNT">
+            <summary>
+            The maximum allowable amount for a single deposit transaction.
+            </summary>
+        </member>
+        <member name="P:ATM.Domain.Account.AccountNumber">
+            <summary>
+            Gets or sets the unique account number.
+            </summary>
+        </member>
+        <member name="P:ATM.Domain.Account.AccountBalance">
+            <summary>
+            Gets or sets the current balance of the account.
+            </summary>
+        </member>
+        <member name="M:ATM.Domain.Account.Withdraw(System.Decimal)">
+            <summary>
+            Withdraws a specified amount from the account balance.
+            </summary>
+            <param name="amount">The amount to withdraw.</param>
+            <exception cref="T:System.ArgumentException">
+            Thrown when the withdrawal amount exceeds the current account balance.
+            </exception>
+        </member>
+        <member name="M:ATM.Domain.Account.Deposit(System.Decimal)">
+            <summary>
+            Deposits a specified amount into the account balance.
+            </summary>
+            <param name="amount">The amount to deposit.</param>
+            <exception cref="T:System.ArgumentException">
+            Thrown when the deposit amount exceeds the maximum allowable limit.
+            </exception>
+        </member>
+        <member name="T:ATM.Domain.ATM">
+            <summary>
+            Represents an ATM that executes a specific command.
+            </summary>
+        </member>
+        <member name="F:ATM.Domain.ATM._command">
+            <summary>
+            The command to be executed by the ATM.
+            </summary>
+        </member>
+        <member name="M:ATM.Domain.ATM.#ctor(ATM.Domain.ICommand)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ATM.Domain.ATM"/> class with the specified command.
+            </summary>
+            <param name="command">The command to be executed by the ATM.</param>
+        </member>
+        <member name="M:ATM.Domain.ATM.Action">
+            <summary>
+            Executes the action associated with the command.
+            </summary>
+        </member>
+        <member name="T:ATM.Domain.DepositCommand">
+            <summary>
+            Represents a command to deposit a specified amount into an account.
+            </summary>
+        </member>
+        <member name="F:ATM.Domain.DepositCommand._account">
+            <summary>
+            The account where the deposit will be made.
+            </summary>
+        </member>
+        <member name="F:ATM.Domain.DepositCommand._amount">
+            <summary>
+            The amount to be deposited into the account.
+            </summary>
+        </member>
+        <member name="M:ATM.Domain.DepositCommand.#ctor(ATM.Domain.Account,System.Decimal)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ATM.Domain.DepositCommand"/> class with the specified account and amount.
+            </summary>
+            <param name="account">The account where the deposit will be made.</param>
+            <param name="amount">The amount to deposit.</param>
+        </member>
+        <member name="M:ATM.Domain.DepositCommand.Execute">
+            <summary>
+            Executes the deposit command by adding the specified amount to the account balance.
+            </summary>
+        </member>
+        <member name="T:ATM.Domain.ICommand">
+            <summary>
+            Defines a command interface with a method for executing a command.
+            </summary>
+        </member>
+        <member name="M:ATM.Domain.ICommand.Execute">
+            <summary>
+            Executes the command.
+            </summary>
+        </member>
+        <member name="T:ATM.Domain.WithdrawCommand">
+            <summary>
+            Represents a command to withdraw a specified amount from an account.
+            </summary>
+        </member>
+        <member name="F:ATM.Domain.WithdrawCommand._account">
+            <summary>
+            The account from which the withdrawal will be made.
+            </summary>
+        </member>
+        <member name="F:ATM.Domain.WithdrawCommand._amount">
+            <summary>
+            The amount to be withdrawn from the account.
+            </summary>
+        </member>
+        <member name="M:ATM.Domain.WithdrawCommand.#ctor(ATM.Domain.Account,System.Decimal)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ATM.Domain.WithdrawCommand"/> class with the specified account and amount.
+            </summary>
+            <param name="account">The account from which the withdrawal will be made.</param>
+            <param name="amount">The amount to withdraw.</param>
+        </member>
+        <member name="M:ATM.Domain.WithdrawCommand.Execute">
+            <summary>
+            Executes the withdrawal command by deducting the specified amount from the account balance.
+            </summary>
+        </member>
+    </members>
+</doc>
