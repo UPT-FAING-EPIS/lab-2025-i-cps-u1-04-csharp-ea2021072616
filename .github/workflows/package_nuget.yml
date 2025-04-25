@@ -18,11 +18,13 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # Ejecutar pruebas
+      # Ejecutar pruebas unitarias para ambos proyectos
       - name: Run Unit Tests
-        run: dotnet test --logger trx
+        run: |
+          dotnet test ATM/ATM.Domain.csproj --logger trx
+          dotnet test Payment/Payment.Domain.csproj --logger trx
 
-      # Publicar reporte de pruebas en GitHub
+      # Publicar los resultados de las pruebas en GitHub
       - name: Publish Test Results
         uses: dorny/test-reporter@v1
         with:
@@ -40,13 +42,13 @@ jobs:
           SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
 
-      # Build proyectos para NuGet
+      # Construir los paquetes NuGet para ambos proyectos
       - name: Build NuGet Packages
         run: |
-          dotnet pack ATM.Domain/ATM.Domain.csproj -c Release -o output
-          dotnet pack Payment.Domain/Payment.Domain.csproj -c Release -o output
+          dotnet pack ATM/ATM.Domain.csproj -c Release -o output
+          dotnet pack Payment/Payment.Domain.csproj -c Release -o output
 
-      # Publicar paquetes a NuGet.org (tu cuenta personal)
+      # Publicar los paquetes NuGet en tu cuenta personal (periférica)
       - name: Push NuGet Packages
         run: |
           for file in output/*.nupkg; do
