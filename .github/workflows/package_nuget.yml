@@ -1,0 +1,56 @@
+name: Build & Publish NuGet
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test-analyze-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      # Ejecutar pruebas
+      - name: Run Unit Tests
+        run: dotnet test --logger trx
+
+      # Publicar reporte de pruebas en GitHub
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests
+          path: '**/TestResults/*.trx'
+          reporter: dotnet-trx
+
+      # Análisis con SonarCloud
+      - name: Begin SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+
+      # Build proyectos para NuGet
+      - name: Build NuGet Packages
+        run: |
+          dotnet pack ATM.Domain/ATM.Domain.csproj -c Release -o output
+          dotnet pack Payment.Domain/Payment.Domain.csproj -c Release -o output
+
+      # Publicar paquetes a NuGet.org (tu cuenta personal)
+      - name: Push NuGet Packages
+        run: |
+          for file in output/*.nupkg; do
+            dotnet nuget push "$file" \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --source https://api.nuget.org/v3/index.json
+          done
