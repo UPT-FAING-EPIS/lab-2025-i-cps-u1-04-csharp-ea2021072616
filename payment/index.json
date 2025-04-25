@@ -1,0 +1,72 @@
+{
+  "disenio.html": {
+    "href": "disenio.html",
+    "title": "| Documentación del Sistema de Pagos",
+    "summary": "classDiagram class CashPaymentStrategy CashPaymentStrategy : +Pay() Boolean class CreditCardPaymentStrategy CreditCardPaymentStrategy : +Pay() Boolean class DebitCardPaymentStrategy DebitCardPaymentStrategy : +Pay() Boolean class IPaymentStrategy IPaymentStrategy : +Pay() Boolean class PaymentContext PaymentContext : +SetPaymentStrategy() Void PaymentContext : +Pay() Boolean class PaymentService PaymentService : +ProcessPayment() Boolean IPaymentStrategy <|.. CashPaymentStrategy IPaymentStrategy <|.. CreditCardPaymentStrategy IPaymentStrategy <|.. DebitCardPaymentStrategy"
+  },
+  "docs/Payment.Domain.CashPaymentStrategy.html": {
+    "href": "docs/Payment.Domain.CashPaymentStrategy.html",
+    "title": "Class CashPaymentStrategy | Documentación del Sistema de Pagos",
+    "summary": "Class CashPaymentStrategy Namespace Payment.Domain Assembly Payment.Domain.dll Represents a payment strategy for handling cash payments. public class CashPaymentStrategy : IPaymentStrategy Inheritance object CashPaymentStrategy Implements IPaymentStrategy Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods Pay(double) Processes a payment using cash. public bool Pay(double amount) Parameters amount double The amount to be paid in cash. Returns bool Returns true to indicate that the payment was successfully processed."
+  },
+  "docs/Payment.Domain.CreditCardPaymentStrategy.html": {
+    "href": "docs/Payment.Domain.CreditCardPaymentStrategy.html",
+    "title": "Class CreditCardPaymentStrategy | Documentación del Sistema de Pagos",
+    "summary": "Class CreditCardPaymentStrategy Namespace Payment.Domain Assembly Payment.Domain.dll Represents a payment strategy for handling credit card payments. public class CreditCardPaymentStrategy : IPaymentStrategy Inheritance object CreditCardPaymentStrategy Implements IPaymentStrategy Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods Pay(double) Processes a payment using a credit card. public bool Pay(double amount) Parameters amount double The amount to be paid using the credit card. Returns bool Returns true to indicate that the payment was successfully processed."
+  },
+  "docs/Payment.Domain.DebitCardPaymentStrategy.html": {
+    "href": "docs/Payment.Domain.DebitCardPaymentStrategy.html",
+    "title": "Class DebitCardPaymentStrategy | Documentación del Sistema de Pagos",
+    "summary": "Class DebitCardPaymentStrategy Namespace Payment.Domain Assembly Payment.Domain.dll Represents a payment strategy for handling debit card payments. public class DebitCardPaymentStrategy : IPaymentStrategy Inheritance object DebitCardPaymentStrategy Implements IPaymentStrategy Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods Pay(double) Processes a payment using a debit card. public bool Pay(double amount) Parameters amount double The amount to be paid using the debit card. Returns bool Returns true to indicate that the payment was successfully processed."
+  },
+  "docs/Payment.Domain.IPaymentStrategy.html": {
+    "href": "docs/Payment.Domain.IPaymentStrategy.html",
+    "title": "Interface IPaymentStrategy | Documentación del Sistema de Pagos",
+    "summary": "Interface IPaymentStrategy Namespace Payment.Domain Assembly Payment.Domain.dll Defines a strategy for processing payments. public interface IPaymentStrategy Methods Pay(double) Processes a payment with the specified amount. bool Pay(double amount) Parameters amount double The amount to be paid. Returns bool Returns true if the payment was successfully processed; otherwise, false."
+  },
+  "docs/Payment.Domain.PaymentContext.html": {
+    "href": "docs/Payment.Domain.PaymentContext.html",
+    "title": "Class PaymentContext | Documentación del Sistema de Pagos",
+    "summary": "Class PaymentContext Namespace Payment.Domain Assembly Payment.Domain.dll Represents the context for processing payments using a specified payment strategy. public class PaymentContext Inheritance object PaymentContext Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods Pay(double) Processes a payment using the currently set payment strategy. public bool Pay(double amount) Parameters amount double The amount to be paid. Returns bool Returns true if the payment was successfully processed; otherwise, false. SetPaymentStrategy(IPaymentStrategy) Sets the payment strategy to be used by the context. public void SetPaymentStrategy(IPaymentStrategy strategy) Parameters strategy IPaymentStrategy The payment strategy to use."
+  },
+  "docs/Payment.Domain.PaymentService.html": {
+    "href": "docs/Payment.Domain.PaymentService.html",
+    "title": "Class PaymentService | Documentación del Sistema de Pagos",
+    "summary": "Class PaymentService Namespace Payment.Domain Assembly Payment.Domain.dll Provides services for processing payments using different payment strategies. public class PaymentService Inheritance object PaymentService Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods ProcessPayment(int, double) Processes a payment based on the selected payment type and amount. public bool ProcessPayment(int SelectedPaymentType, double Amount) Parameters SelectedPaymentType int The type of payment selected (e.g., CreditCard, DebitCard, Cash). Amount double The amount to be paid. Returns bool Returns true if the payment was successfully processed; otherwise, false. Exceptions ArgumentException Thrown when an invalid payment option is selected."
+  },
+  "docs/Payment.Domain.PaymentType.html": {
+    "href": "docs/Payment.Domain.PaymentType.html",
+    "title": "Enum PaymentType | Documentación del Sistema de Pagos",
+    "summary": "Enum PaymentType Namespace Payment.Domain Assembly Payment.Domain.dll Represents the different types of payment methods available. public enum PaymentType Fields Cash = 3 Payment using cash. CreditCard = 1 Payment using a credit card. DebitCard = 2 Payment using a debit card."
+  },
+  "docs/Payment.Domain.Tests.PaymentTests.html": {
+    "href": "docs/Payment.Domain.Tests.PaymentTests.html",
+    "title": "Class PaymentTests | Documentación del Sistema de Pagos",
+    "summary": "Class PaymentTests Namespace Payment.Domain.Tests Assembly Payment.Domain.Tests.dll public class PaymentTests Inheritance object PaymentTests Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods GivenAValidPaymentTypeAndAmount_WhenProcessPayment_ResultIsSuccesful(int, double) [TestCase(1, 1000)] [TestCase(2, 2000)] [TestCase(3, 3000)] public void GivenAValidPaymentTypeAndAmount_WhenProcessPayment_ResultIsSuccesful(int paymentType, double amount) Parameters paymentType int amount double GivenAnUnknownPaymentTypeAndAmount_WhenProcessPayment_ResultIsError(int, double) [TestCase(4, 4000)] public void GivenAnUnknownPaymentTypeAndAmount_WhenProcessPayment_ResultIsError(int paymentType, double amount) Parameters paymentType int amount double"
+  },
+  "docs/Payment.Domain.Tests.html": {
+    "href": "docs/Payment.Domain.Tests.html",
+    "title": "Namespace Payment.Domain.Tests | Documentación del Sistema de Pagos",
+    "summary": "Namespace Payment.Domain.Tests Classes PaymentTests"
+  },
+  "docs/Payment.Domain.html": {
+    "href": "docs/Payment.Domain.html",
+    "title": "Namespace Payment.Domain | Documentación del Sistema de Pagos",
+    "summary": "Namespace Payment.Domain Classes CashPaymentStrategy Represents a payment strategy for handling cash payments. CreditCardPaymentStrategy Represents a payment strategy for handling credit card payments. DebitCardPaymentStrategy Represents a payment strategy for handling debit card payments. PaymentContext Represents the context for processing payments using a specified payment strategy. PaymentService Provides services for processing payments using different payment strategies. Interfaces IPaymentStrategy Defines a strategy for processing payments. Enums PaymentType Represents the different types of payment methods available."
+  },
+  "docs/getting-started.html": {
+    "href": "docs/getting-started.html",
+    "title": "Getting Started | Documentación del Sistema de Pagos",
+    "summary": "Getting Started"
+  },
+  "docs/introduction.html": {
+    "href": "docs/introduction.html",
+    "title": "Introduction | Documentación del Sistema de Pagos",
+    "summary": "Introduction"
+  },
+  "index.html": {
+    "href": "index.html",
+    "title": "Bienvenido a la Documentación del Sistema de Pagos con el Patrón Estrategia | Documentación del Sistema de Pagos",
+    "summary": "Bienvenido a la Documentación del Sistema de Pagos con el Patrón Estrategia Diagrama de Clases Clases Documentadas CashPaymentStrategy CreditCardPaymentStrategy DebitCardPaymentStrategy IPaymentStrategy PaymentContext PaymentService"
+  }
+}
