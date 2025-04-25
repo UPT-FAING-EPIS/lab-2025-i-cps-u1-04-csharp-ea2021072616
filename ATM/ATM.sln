@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Domain", "ATM.Domain\ATM.Domain.csproj", "{7D826710-7712-4445-9421-B0F5484F3572}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATM.Domain.Tests", "ATM.Domain.Tests\ATM.Domain.Tests.csproj", "{FADDC089-536F-4901-9803-FCA2DBF33728}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7D826710-7712-4445-9421-B0F5484F3572}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D826710-7712-4445-9421-B0F5484F3572}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D826710-7712-4445-9421-B0F5484F3572}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D826710-7712-4445-9421-B0F5484F3572}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FADDC089-536F-4901-9803-FCA2DBF33728}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FADDC089-536F-4901-9803-FCA2DBF33728}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FADDC089-536F-4901-9803-FCA2DBF33728}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FADDC089-536F-4901-9803-FCA2DBF33728}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
