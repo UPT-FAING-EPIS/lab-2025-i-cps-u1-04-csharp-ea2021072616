@@ -41,14 +41,9 @@ jobs:
       # ANÁLISIS SONARCLOUD
       # =============================
       - name: Iniciar análisis SonarCloud
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          projectBaseDir: .
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: "erickorganizacion_lab4"  # Actualiza aquí
-          SONAR_ORGANIZATION: "erickorganizacion"     # Actualiza aquí
-
+        run: |
+          dotnet sonarscanner begin /k:"erickorganizacion_lab4" /o:"erickorganizacion" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        
       # =============================
       # CONSTRUCCIÓN DE PAQUETES NUGET
       # =============================
@@ -69,3 +64,10 @@ jobs:
               --api-key ${{ secrets.NUGET_API_KEY }} \
               --skip-duplicate
           done
+
+      # =============================
+      # FINALIZAR ANÁLISIS SONARCLOUD
+      # =============================
+      - name: Finalizar análisis SonarCloud
+        run: |
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
