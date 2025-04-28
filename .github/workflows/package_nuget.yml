@@ -20,28 +20,26 @@ jobs:
       with:
         dotnet-version: '8.x'
 
-    # =============================
+    # ============================= 
     # RESTAURAR DEPENDENCIAS
-    # =============================
+    # ============================= 
     - name: Restaurar dependencias
       run: |
-        dotnet restore ./Payment/Payment.Domain/Payment.Domain.csproj
-        dotnet restore ./ATM/ATM.Domain/ATM.Domain.csproj
-        dotnet restore ./Notifications/Notifications.Domain/Notifications.Domain.csproj
-        dotnet restore ./CustomerApp/CustomerApp.Domain/CustomerApp.Domain.csproj
+        dotnet restore Notifications/Notifications.Domain/Notifications.Domain.csproj
+        dotnet restore CustomerApp/CustomerApp.Domain/CustomerApp.Domain.csproj
 
-    # =============================
+    # ============================= 
     # PRUEBAS
-    # =============================
+    # ============================= 
     - name: Ejecutar pruebas de Payment
-      run: dotnet test ./Payment/Payment.Domain.Tests/Payment.Domain.Tests.csproj --no-build --verbosity normal
+      run: dotnet test Payment/Payment.Domain.Tests/Payment.Domain.Tests.csproj --no-build --verbosity normal
 
     - name: Ejecutar pruebas de ATM
-      run: dotnet test ./ATM/ATM.Domain.Tests/ATM.Domain.Tests.csproj --no-build --verbosity normal
+      run: dotnet test ATM/ATM.Domain.Tests/ATM.Domain.Tests.csproj --no-build --verbosity normal
 
-    # =============================
+    # ============================= 
     # SONARCLOUD
-    # =============================
+    # ============================= 
     - name: Instalar SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
@@ -49,47 +47,39 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        dotnet sonarscanner begin /k:"erickorganizacion_lab4" /o:"erickorganizacion" /d:sonar.login="$SONAR_TOKEN"
+        dotnet sonarscanner begin /k:"erickorganizacion_lab4" \
+          /o:"erickorganizacion" \
+          /d:sonar.login="$SONAR_TOKEN" \
+          /d:sonar.projectKey="erickorganizacion_lab4" \
+          /d:sonar.organization="erickorganizacion"
 
     - name: Compilar proyectos
       run: |
-        dotnet build ./Notifications/Notifications.Domain/Notifications.Domain.csproj --no-restore --configuration Release
-        dotnet build ./CustomerApp/CustomerApp.Domain/CustomerApp.Domain.csproj --no-restore --configuration Release
-        dotnet build ./Payment/Payment.Domain/Payment.Domain.csproj --no-restore --configuration Release
-        dotnet build ./ATM/ATM.Domain/ATM.Domain.csproj --no-restore --configuration Release
+        dotnet build Notifications/Notifications.Domain/Notifications.Domain.csproj --no-restore --configuration Release
+        dotnet build CustomerApp/CustomerApp.Domain/CustomerApp.Domain.csproj --no-restore --configuration Release
 
     - name: Finalizar análisis SonarCloud
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 
-    # =============================
+    # ============================= 
     # EMPAQUETADO
-    # =============================
+    # ============================= 
     - name: Crear paquetes NuGet
       run: |
-        dotnet pack ./Payment/Payment.Domain/Payment.Domain.csproj --configuration Release --output ./nupkgs
-        dotnet pack ./ATM/ATM.Domain/ATM.Domain.csproj --configuration Release --output ./nupkgs
+        dotnet pack Payment/Payment.Domain/Payment.Domain.csproj --configuration Release --output ./nupkgs
+        dotnet pack ATM/ATM.Domain/ATM.Domain.csproj --configuration Release --output ./nupkgs
 
-    # =============================
+    # ============================= 
     # PUBLICACIÓN
-    # =============================
-    - name: Verificar si hay paquetes NuGet
-      run: |
-        if [ "$(ls -A ./nupkgs)" ]; then
-          echo "Paquetes NuGet encontrados."
-        else
-          echo "No se encontraron paquetes NuGet para publicar."
-          exit 1
-        fi
-
+    # ============================= 
     - name: Publicar paquetes en GitHub Packages
       env:
         NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
       run: |
         for file in ./nupkgs/*.nupkg
         do
-          echo "Publicando $file"
           dotnet nuget push "$file" \
             --source "https://nuget.pkg.github.com/ea2021072616/index.json" \
             --api-key "${{ secrets.GH_PACKAGES_TOKEN }}" \
