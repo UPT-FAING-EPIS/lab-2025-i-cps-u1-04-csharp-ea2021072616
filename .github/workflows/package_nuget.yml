@@ -38,16 +38,6 @@ jobs:
         run: dotnet test Payment/Payment.Domain/Payment.Domain.csproj --logger trx --no-build
 
       # =============================
-      # PUBLICAR RESULTADOS DE PRUEBAS
-      # =============================
-      - name: Publicar resultados de pruebas
-        uses: dorny/test-reporter@v1
-        with:
-          name: Unit Tests
-          path: '**/TestResults/*.trx'
-          reporter: dotnet-trx
-
-      # =============================
       # ANÁLISIS SONARCLOUD
       # =============================
       - name: Iniciar análisis SonarCloud
