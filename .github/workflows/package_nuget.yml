@@ -38,19 +38,17 @@ jobs:
         run: dotnet test Payment/Payment.Domain/Payment.Domain.csproj --logger trx --no-build
 
       # =============================
-      # INSTALAR SONARSCANNER
-      # =============================
-      - name: Instalar SonarScanner
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-
-      # =============================
       # ANÁLISIS SONARCLOUD
       # =============================
       - name: Iniciar análisis SonarCloud
-        run: |
-          dotnet sonarscanner begin /k:"erickorganizacion_lab4" /o:"erickorganizacion" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-        
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+
       # =============================
       # CONSTRUCCIÓN DE PAQUETES NUGET
       # =============================
@@ -58,23 +56,3 @@ jobs:
         run: |
           dotnet pack ATM/ATM.Domain/ATM.Domain.csproj --configuration Release --output ./nupkgs
           dotnet pack Payment/Payment.Domain/Payment.Domain.csproj --configuration Release --output ./nupkgs
-
-      # =============================
-      # PUBLICAR PAQUETES NUGET
-      # =============================
-      - name: Publicar paquetes en NuGet
-        run: |
-          for file in ./nupkgs/*.nupkg
-          do
-            dotnet nuget push "$file" \
-              --source https://api.nuget.org/v3/index.json \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
-              --skip-duplicate
-          done
-
-      # =============================
-      # FINALIZAR ANÁLISIS SONARCLOUD
-      # =============================
-      - name: Finalizar análisis SonarCloud
-        run: |
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
