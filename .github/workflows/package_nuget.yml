@@ -50,12 +50,12 @@ jobs:
       with:
         projectBaseDir: .
         args: >
-          /d:sonar.projectKey=erickorganizacion_lab4
-          /d:sonar.organization=erickorganizacion
-          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-          /d:sonar.coverage.exclusions="**Test*.cs"
-          /d:sonar.cpd.exclusions="**Test*.cs"
-          /d:sonar.dotnet.excludeTestProjects=true
+          -Dsonar.projectKey=erickorganizacion_lab4
+          -Dsonar.organization=erickorganizacion
+          -Dsonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+          -Dsonar.coverage.exclusions="**Test*.cs"
+          -Dsonar.cpd.exclusions="**Test*.cs"
+          -Dsonar.dotnet.excludeTestProjects=true
 
     - name: Compilar proyectos
       run: |
@@ -74,9 +74,9 @@ jobs:
     # PUBLICACIÓN
     # ============================= 
     - name: Publicar paquetes en GitHub Packages
-      if: github.ref == 'refs/heads/main'  # Solo publica en la rama main
+      if: github.ref == 'refs/heads/main'
       env:
-        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Usa el token automático
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         for file in ./nupkgs/*.nupkg
         do
