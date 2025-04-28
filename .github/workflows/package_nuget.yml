@@ -8,76 +8,74 @@ on:
 
 jobs:
   build:
-    name: Compilar, Testear y Publicar Paquetes NuGet
+    name: Compilar & Publicar Paquetes NuGet
     runs-on: ubuntu-latest
 
     steps:
-    - name: Clonar repositorio
-      uses: actions/checkout@v3
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
 
-    - name: Listar archivos en el repositorio (debug)
-      run: |
-        ls -R
+      - name: Configurar .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
 
-    - name: Configurar .NET SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.x'
+      # =============================
+      # RESTAURAR DEPENDENCIAS
+      # =============================
+      - name: Restaurar dependencias
+        run: |
+          dotnet restore ATM/ATM.Domain/ATM.Domain.csproj
+          dotnet restore Payment/Payment.Domain/Payment.Domain.csproj
 
-    # ==============================
-    # RESTAURAR DEPENDENCIAS
-    # ==============================
-    - name: Restaurar dependencias
-      run: |
-        dotnet restore ATM/ATM.Domain/ATM.Domain.csproj
-        dotnet restore Payment/Payment.Domain/Payment.Domain.csproj
+      # =============================
+      # PRUEBAS
+      # =============================
+      - name: Ejecutar pruebas de ATM
+        run: dotnet test ATM/ATM.Domain/ATM.Domain.csproj --logger trx --no-build
 
-    # ==============================
-    # EJECUTAR PRUEBAS
-    # ==============================
-    - name: Ejecutar pruebas unitarias de ATM
-      run: dotnet test ATM/ATM.Domain.Tests/ATM.Domain.Tests.csproj --no-build --verbosity normal
+      - name: Ejecutar pruebas de Payment
+        run: dotnet test Payment/Payment.Domain/Payment.Domain.csproj --logger trx --no-build
 
-    - name: Ejecutar pruebas unitarias de Payment
-      run: dotnet test Payment/Payment.Domain.Tests/Payment.Domain.Tests.csproj --no-build --verbosity normal
+      # =============================
+      # PUBLICAR RESULTADOS DE PRUEBAS
+      # =============================
+      - name: Publicar resultados de pruebas
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests
+          path: '**/TestResults/*.trx'
+          reporter: dotnet-trx
 
-    # ==============================
-    # PUBLICAR RESULTADOS DE PRUEBAS
-    # ==============================
-    - name: Publicar resultados de pruebas
-      uses: dorny/test-reporter@v1
-      with:
-        name: Unit Tests
-        path: '**/TestResults/*.trx'
-        reporter: dotnet-trx
+      # =============================
+      # ANÁLISIS SONARCLOUD
+      # =============================
+      - name: Iniciar análisis SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
 
-    # ==============================
-    # SONARCLOUD
-    # ==============================
-    - name: Iniciar análisis SonarCloud
-      uses: SonarSource/sonarcloud-github-action@v2
-      with:
-        projectBaseDir: .
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-        SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+      # =============================
+      # CONSTRUCCIÓN DE PAQUETES NUGET
+      # =============================
+      - name: Crear paquetes NuGet
+        run: |
+          dotnet pack ATM/ATM.Domain/ATM.Domain.csproj --configuration Release --output ./nupkgs
+          dotnet pack Payment/Payment.Domain/Payment.Domain.csproj --configuration Release --output ./nupkgs
 
-    # ==============================
-    # COMPILAR Y CREAR PAQUETES
-    # ==============================
-    - name: Crear paquetes NuGet
-      run: |
-        dotnet pack ATM/ATM.Domain/ATM.Domain.csproj -c Release -o output
-        dotnet pack Payment/Payment.Domain/Payment.Domain.csproj -c Release -o output
-
-    # ==============================
-    # PUBLICAR PAQUETES EN NUGET
-    # ==============================
-    - name: Publicar paquetes NuGet
-      run: |
-        for file in output/*.nupkg; do
-          dotnet nuget push "$file" \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json
-        done
+      # =============================
+      # PUBLICAR PAQUETES NUGET
+      # =============================
+      - name: Publicar paquetes en NuGet
+        run: |
+          for file in ./nupkgs/*.nupkg
+          do
+            dotnet nuget push "$file" \
+              --source https://api.nuget.org/v3/index.json \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --skip-duplicate
+          done
