@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: List files in the repository (debug)
+        run: |
+          ls -R
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
@@ -21,8 +25,8 @@ jobs:
       # Ejecutar pruebas unitarias para ambos proyectos
       - name: Run Unit Tests
         run: |
-          dotnet test ATM/ATM.Domain.csproj --logger trx
-          dotnet test Payment/Payment.Domain.csproj --logger trx
+          dotnet test ATM/ATM.Domain/ATM.Domain.csproj --logger trx
+          dotnet test Payment/Payment.Domain/Payment.Domain.csproj --logger trx
 
       # Publicar los resultados de las pruebas en GitHub
       - name: Publish Test Results
@@ -45,8 +49,8 @@ jobs:
       # Construir los paquetes NuGet para ambos proyectos
       - name: Build NuGet Packages
         run: |
-          dotnet pack ATM/ATM.Domain.csproj -c Release -o output
-          dotnet pack Payment/Payment.Domain.csproj -c Release -o output
+          dotnet pack ATM/ATM.Domain/ATM.Domain.csproj -c Release -o output
+          dotnet pack Payment/Payment.Domain/Payment.Domain.csproj -c Release -o output
 
       # Publicar los paquetes NuGet en tu cuenta personal (periférica)
       - name: Push NuGet Packages
