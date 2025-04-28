@@ -38,6 +38,13 @@ jobs:
         run: dotnet test Payment/Payment.Domain/Payment.Domain.csproj --logger trx --no-build
 
       # =============================
+      # INSTALAR SONARSCANNER
+      # =============================
+      - name: Instalar SonarScanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+
+      # =============================
       # ANÁLISIS SONARCLOUD
       # =============================
       - name: Iniciar análisis SonarCloud
