@@ -1,49 +1,83 @@
-name: Compilar y Analizar con SonarCloud
+name: Compilar, Testear, Analizar y Publicar NuGet
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
+    name: Compilar & Publicar Paquetes NuGet
     runs-on: ubuntu-latest
 
     steps:
-    - name: Clonar el repositorio
+    - name: Clonar repositorio
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 0  # Necesario para SonarCloud
 
-    - name: Configurar .NET
+    - name: Configurar .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '8.x'
 
+    # =============================
+    # RESTAURAR DEPENDENCIAS
+    # =============================
     - name: Restaurar dependencias
-      run: dotnet restore
-
-    - name: Ejecutar pruebas con cobertura
-      run: dotnet test --no-build --collect:"XPlat Code Coverage"
-
-    - name: Análisis SonarCloud
-      uses: SonarSource/sonarcloud-github-action@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Necesario para integración con PRs
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        projectBaseDir: .
-        args: >
-          /d:sonar.organization=erickorganizacion
-          /d:sonar.projectKey=erickorganizacion_lab4
-          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-          /d:sonar.coverage.exclusions="**Test*.cs"
-          /d:sonar.cpd.exclusions="**Test*.cs"
-          /d:sonar.dotnet.excludeTestProjects=true
-
-    - name: Compilar el proyecto
-      run: dotnet build --configuration Release --no-restore
-
-    - name: Publicar NuGet
       run: |
-        dotnet pack --configuration Release --output ./nupkgs --no-build
+        dotnet restore Notifications/Notifications.Domain/Notifications.Domain.csproj
+        dotnet restore CustomerApp/CustomerApp.Domain/CustomerApp.Domain.csproj
+
+    # =============================
+    # PRUEBAS
+    # =============================
+    - name: Ejecutar pruebas de Payment
+      run: dotnet test Payment\Payment.Domain.Tests\Payment.Domain.Tests.csproj --no-build --verbosity normal
+
+    - name: Ejecutar pruebas de ATM
+      run: dotnet test ATM\ATM.Domain.Tests\ATM.Domain.Tests.csproj --no-build --verbosity normal
+
+    # =============================
+    # SONARCLOUD
+    # =============================
+    - name: Instalar SonarScanner
+      run: dotnet tool install --global dotnet-sonarscanner
+
+    - name: Iniciar análisis SonarCloud
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        dotnet sonarscanner begin /k:"erickorganizacion_lab4" /o:"erickorganizacion" /d:sonar.login="$SONAR_TOKEN"
+
+    - name: Compilar proyectos
+      run: |
+        dotnet build Notifications/Notifications.Domain/Notifications.Domain.csproj --no-restore --configuration Release
+        dotnet build CustomerApp/CustomerApp.Domain/CustomerApp.Domain.csproj --no-restore --configuration Release
+
+    - name: Finalizar análisis SonarCloud
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+
+    # =============================
+    # EMPAQUETADO
+    # =============================
+    - name: Crear paquetes NuGet
+      run: |
+        dotnet pack Payment\Payment.Domain\Payment.Domain.csproj --configuration Release --output ./nupkgs
+        dotnet pack ATM\ATM.Domain\ATM.Domain.csproj --configuration Release --output ./nupkgs
+
+    # =============================
+    # PUBLICACIÓN
+    # =============================
+    - name: Publicar paquetes en GitHub Packages
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+      run: |
+        for file in ./nupkgs/*.nupkg
+        do
+          dotnet nuget push "$file" \
+            --source "https://nuget.pkg.github.com/ea2021072616/index.json" \
+            --api-key "${{ secrets.GH_PACKAGES_TOKEN }}" \
+            --skip-duplicate
+        done
