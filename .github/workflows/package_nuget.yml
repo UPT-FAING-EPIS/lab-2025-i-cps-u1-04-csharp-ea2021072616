@@ -1,61 +1,83 @@
-name: Build & Publish NuGet
+name: Compilar, Testear, Analizar y Publicar NuGet
 
 on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  build-test-analyze-package:
+  build:
+    name: Compilar, Testear y Publicar Paquetes NuGet
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+    - name: Clonar repositorio
+      uses: actions/checkout@v3
 
-      - name: List files in the repository (debug)
-        run: |
-          ls -R
+    - name: Listar archivos en el repositorio (debug)
+      run: |
+        ls -R
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
+    - name: Configurar .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.x'
 
-      # Ejecutar pruebas unitarias para ambos proyectos
-      - name: Run Unit Tests
-        run: |
-          dotnet test ATM/ATM.Domain/ATM.Domain.csproj --logger "trx;LogFileName=ATM_tests.trx"
-          dotnet test Payment/Payment.Domain/Payment.Domain.csproj --logger "trx;LogFileName=Payment_tests.trx"
+    # ==============================
+    # RESTAURAR DEPENDENCIAS
+    # ==============================
+    - name: Restaurar dependencias
+      run: |
+        dotnet restore ATM/ATM.Domain/ATM.Domain.csproj
+        dotnet restore Payment/Payment.Domain/Payment.Domain.csproj
 
-      # Publicar los resultados de las pruebas en GitHub
-      - name: Publish Test Results
-        uses: dorny/test-reporter@v1
-        with:
-          name: Unit Tests
-          path: './ATM_tests.trx'
-          reporter: dotnet-trx
+    # ==============================
+    # EJECUTAR PRUEBAS
+    # ==============================
+    - name: Ejecutar pruebas unitarias de ATM
+      run: dotnet test ATM/ATM.Domain.Tests/ATM.Domain.Tests.csproj --no-build --verbosity normal
 
-      # Análisis con SonarCloud
-      - name: Begin SonarCloud analysis
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          projectKey: erickorganizacion_lab4  # Clave del proyecto
-          organization: erickorganizacion  # Clave de la organización
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    - name: Ejecutar pruebas unitarias de Payment
+      run: dotnet test Payment/Payment.Domain.Tests/Payment.Domain.Tests.csproj --no-build --verbosity normal
 
-      # Construir los paquetes NuGet para ambos proyectos
-      - name: Build NuGet Packages
-        run: |
-          dotnet pack ATM/ATM.Domain/ATM.Domain.csproj -c Release -o output
-          dotnet pack Payment/Payment.Domain/Payment.Domain.csproj -c Release -o output
+    # ==============================
+    # PUBLICAR RESULTADOS DE PRUEBAS
+    # ==============================
+    - name: Publicar resultados de pruebas
+      uses: dorny/test-reporter@v1
+      with:
+        name: Unit Tests
+        path: '**/TestResults/*.trx'
+        reporter: dotnet-trx
 
-      # Publicar los paquetes NuGet en tu cuenta personal (periférica)
-      - name: Push NuGet Packages
-        run: |
-          for file in output/*.nupkg; do
-            dotnet nuget push "$file" \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
-              --source https://api.nuget.org/v3/index.json
-          done
+    # ==============================
+    # SONARCLOUD
+    # ==============================
+    - name: Iniciar análisis SonarCloud
+      uses: SonarSource/sonarcloud-github-action@v2
+      with:
+        projectBaseDir: .
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+        SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+
+    # ==============================
+    # COMPILAR Y CREAR PAQUETES
+    # ==============================
+    - name: Crear paquetes NuGet
+      run: |
+        dotnet pack ATM/ATM.Domain/ATM.Domain.csproj -c Release -o output
+        dotnet pack Payment/Payment.Domain/Payment.Domain.csproj -c Release -o output
+
+    # ==============================
+    # PUBLICAR PAQUETES EN NUGET
+    # ==============================
+    - name: Publicar paquetes NuGet
+      run: |
+        for file in output/*.nupkg; do
+          dotnet nuget push "$file" \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json
+        done
