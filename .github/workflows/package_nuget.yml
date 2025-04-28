@@ -25,26 +25,25 @@ jobs:
       # Ejecutar pruebas unitarias para ambos proyectos
       - name: Run Unit Tests
         run: |
-          dotnet test ATM/ATM.Domain/ATM.Domain.csproj --logger trx
-          dotnet test Payment/Payment.Domain/Payment.Domain.csproj --logger trx
+          dotnet test ATM/ATM.Domain/ATM.Domain.csproj --logger "trx;LogFileName=ATM_tests.trx"
+          dotnet test Payment/Payment.Domain/Payment.Domain.csproj --logger "trx;LogFileName=Payment_tests.trx"
 
       # Publicar los resultados de las pruebas en GitHub
       - name: Publish Test Results
         uses: dorny/test-reporter@v1
         with:
           name: Unit Tests
-          path: '**/TestResults/*.trx'
+          path: './ATM_tests.trx'
           reporter: dotnet-trx
 
       # Análisis con SonarCloud
       - name: Begin SonarCloud analysis
         uses: SonarSource/sonarcloud-github-action@v2
         with:
-          projectBaseDir: .
+          projectKey: erickorganizacion_lab4  # Clave del proyecto
+          organization: erickorganizacion  # Clave de la organización
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
 
       # Construir los paquetes NuGet para ambos proyectos
       - name: Build NuGet Packages
