@@ -15,7 +15,7 @@ jobs:
     - name: Clonar repositorio
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0  # Necesario para SonarCloud
+        fetch-depth: 0  # Necesario para análisis completo de SonarCloud
 
     - name: Configurar .NET SDK
       uses: actions/setup-dotnet@v3
@@ -31,52 +31,81 @@ jobs:
         dotnet restore ATM/ATM.Domain/ATM.Domain.csproj
 
     # ============================= 
-    # PRUEBAS
+    # PRUEBAS (EJECUCIÓN ÚNICA)
     # ============================= 
-    - name: Ejecutar pruebas de Payment
-      run: dotnet test Payment/Payment.Domain.Tests/Payment.Domain.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
+    - name: Ejecutar pruebas con cobertura
+      run: |
+        dotnet test Payment/Payment.Domain.Tests/Payment.Domain.Tests.csproj \
+          --no-build \
+          --configuration Release \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults \
+          --logger "trx;LogFileName=testresults.trx" \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        
+        dotnet test ATM/ATM.Domain.Tests/ATM.Domain.Tests.csproj \
+          --no-build \
+          --configuration Release \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults \
+          --logger "trx;LogFileName=testresults.trx" \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
-    - name: Ejecutar pruebas de ATM
-      run: dotnet test ATM/ATM.Domain.Tests/ATM.Domain.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
-
     # ============================= 
-    # SONARCLOUD
+    # SONARCLOUD (CONFIGURACIÓN OPTIMIZADA)
     # ============================= 
-    - name: Configurar SonarCloud
+    - name: Análisis SonarCloud
       uses: SonarSource/sonarcloud-github-action@v2
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Necesario para integración con PRs
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Token de autenticación
       with:
         projectBaseDir: .
         args: >
           -Dsonar.projectKey=erickorganizacion_lab4
           -Dsonar.organization=erickorganizacion
-          -Dsonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+          -Dsonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml"
           -Dsonar.coverage.exclusions="**Test*.cs"
           -Dsonar.cpd.exclusions="**Test*.cs"
           -Dsonar.dotnet.excludeTestProjects=true
+          -Dsonar.tests.disabled=true  # Evita ejecución duplicada de tests
+          -Dsonar.verbose=true
 
+    # ============================= 
+    # COMPILACIÓN
+    # ============================= 
     - name: Compilar proyectos
       run: |
-        dotnet build Payment/Payment.Domain/Payment.Domain.csproj --no-restore --configuration Release
-        dotnet build ATM/ATM.Domain/ATM.Domain.csproj --no-restore --configuration Release
+        dotnet build Payment/Payment.Domain/Payment.Domain.csproj \
+          --no-restore \
+          --configuration Release
+        
+        dotnet build ATM/ATM.Domain/ATM.Domain.csproj \
+          --no-restore \
+          --configuration Release
 
     # ============================= 
     # EMPAQUETADO
     # ============================= 
     - name: Crear paquetes NuGet
       run: |
-        dotnet pack Payment/Payment.Domain/Payment.Domain.csproj --configuration Release --output ./nupkgs --no-build
-        dotnet pack ATM/ATM.Domain/ATM.Domain.csproj --configuration Release --output ./nupkgs --no-build
+        dotnet pack Payment/Payment.Domain/Payment.Domain.csproj \
+          --configuration Release \
+          --output ./nupkgs \
+          --no-build
+        
+        dotnet pack ATM/ATM.Domain/ATM.Domain.csproj \
+          --configuration Release \
+          --output ./nupkgs \
+          --no-build
 
     # ============================= 
-    # PUBLICACIÓN
+    # PUBLICACIÓN (SOLO EN MAIN)
     # ============================= 
     - name: Publicar paquetes en GitHub Packages
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/main'  # Solo se ejecuta en la rama main
       env:
-        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Usa el token automático
       run: |
         for file in ./nupkgs/*.nupkg
         do
