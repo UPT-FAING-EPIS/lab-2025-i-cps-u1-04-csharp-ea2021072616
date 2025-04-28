@@ -1,41 +1,79 @@
-name: Compilar y Analizar con SonarCloud
+name: Compilar, Analizar y Publicar Paquete
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Clonar el repositorio
+    - name: Clonar repositorio
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Necesario para SonarCloud
 
     - name: Configurar .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
 
+    # =============================
+    # RESTAURAR Y COMPILAR
+    # =============================
     - name: Restaurar dependencias
       run: dotnet restore
 
+    # =============================
+    # PRUEBAS
+    # =============================
     - name: Ejecutar pruebas
-      run: dotnet test --no-build
+      run: dotnet test --no-build --collect:"XPlat Code Coverage" --verbosity normal
 
-    - name: Iniciar análisis de SonarCloud
+    # =============================
+    # ANÁLISIS SONARCLOUD
+    # =============================
+    - name: Análisis SonarCloud
       uses: SonarSource/sonarcloud-github-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Para decoración de PRs
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         projectBaseDir: .
+        args: >
+          /d:sonar.organization=erickorganizacion
+          /d:sonar.projectKey=erickorganizacion_lab4
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+          /d:sonar.coverage.exclusions="**Test*.cs"
+          /d:sonar.cpd.exclusions="**Test*.cs"
+
+    # =============================
+    # COMPILACIÓN
+    # =============================
+    - name: Compilar proyecto
+      run: dotnet build --configuration Release --no-restore
+
+    # =============================
+    # EMPAQUETADO
+    # =============================
+    - name: Crear paquete NuGet
+      run: dotnet pack --configuration Release --output ./nupkgs --no-build
+
+    # =============================
+    # PUBLICACIÓN (OPCIONAL)
+    # =============================
+    - name: Publicar paquete en GitHub Packages
+      if: github.ref == 'refs/heads/main'  # Solo en main
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-        SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-
-    - name: Compilar el proyecto
-      run: dotnet build --configuration Release
-
-    - name: Publicar NuGet
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        dotnet pack --configuration Release --output ./nupkgs
+        for file in ./nupkgs/*.nupkg
+        do
+          dotnet nuget push "$file" \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key "$NUGET_AUTH_TOKEN" \
+            --skip-duplicate
+        done
